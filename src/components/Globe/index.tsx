@@ -10,6 +10,7 @@ export interface GlobeProps {
 
 export const Globe: React.FC<GlobeProps> = ({ billboardList }) => {
   return (
+    // render the Resium Viewer component (3D globe without terrain)
     <Viewer
       timeline={false}
       baseLayerPicker={false}
@@ -20,6 +21,7 @@ export const Globe: React.FC<GlobeProps> = ({ billboardList }) => {
       animation={false}
       fullscreenButton={false}
     >
+      {/* render the billboard list */}
       {billboardList.map(
         ({ givenName, lon, lat, importance, creationDate, givenId: givenID }, key) => {
           return (
