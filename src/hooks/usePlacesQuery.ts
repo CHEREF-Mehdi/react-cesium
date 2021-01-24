@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useDebounce } from "./useDebounce";
-import { searchPlace } from "../api/nominatim";
+import { searchPlace } from "../api";
 
 export const usePlacesQuery = (value: string) => {
   const [loading, setLoading] = useState<boolean>(false);
