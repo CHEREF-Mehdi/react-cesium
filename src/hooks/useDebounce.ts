@@ -8,9 +8,7 @@ export function useDebounce(value: string, delay: number) {
   React.useEffect(
     () => {
       // Update debounced value after delay
-      const handler = setTimeout(() => {
-        console.log('call', value)
-        
+      const handler = setTimeout(() => {        
         setDebouncedValue(value);
       }, delay);
 

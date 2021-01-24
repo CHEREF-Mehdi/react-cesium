@@ -10,8 +10,9 @@ import Button from "@material-ui/core/Button";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { Header } from "../Header";
 import { Form } from "../Form";
-import { toast } from 'react-toastify'; 
+import { toast } from "react-toastify";
 
+//create transition to the dialog box form
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children?: React.ReactElement<any, any> },
   ref: React.Ref<unknown>
@@ -21,24 +22,41 @@ const Transition = React.forwardRef(function Transition(
 
 export interface WrapperProps {}
 
+//component wrapping the home page
 export const Wrapper: React.FC<WrapperProps> = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
-  const [selectedPlace, setSelectedPlace] = React.useState<NS_GEODATA.IPlace | undefined>(undefined);
-  const [billboardList, setBillboardList] = React.useState<NS_GEODATA.IPlace[]>([]);
-  const [formValidation, setFormValidation] = React.useState<NS_FORM.IFormValidation>({});
+  //state to manage the picked place from the search list
+  const [selectedPlace, setSelectedPlace] = React.useState<
+    NS_GEODATA.IPlace | undefined
+  >(undefined);
+  //state to manage the list of the selected place to pin as billboard entity
+  const [billboardList, setBillboardList] = React.useState<NS_GEODATA.IPlace[]>(
+    []
+  );
+  //state to manage the form validation error messages
+  const [
+    formValidation,
+    setFormValidation,
+  ] = React.useState<NS_FORM.IFormValidation>({});
 
+  //open dialog function
   const handleClickOpen = () => {
     setOpenDialog(true);
   };
-
+  //close dialog function
   const handleClose = () => {
     setOpenDialog(false);
     setSelectedPlace(undefined);
-    setFormValidation({})
+    setFormValidation({});
   };
 
-  const validate=():boolean=>{
-    if (!selectedPlace) {
+  //function to validate billboard addition form
+  const validate = (
+    place: NS_GEODATA.IPlace | undefined,
+    placeList: NS_GEODATA.IPlace[]
+  ): boolean => {
+    //check if the user did select a place
+    if (!place) {
       setFormValidation({
         message1: "The given name should not be empty",
         message2: "The identifier should not be empty",
@@ -46,56 +64,75 @@ export const Wrapper: React.FC<WrapperProps> = () => {
       return false;
     }
 
-    if(billboardList.find(bb=>bb.lat===selectedPlace.lat && bb.lon===selectedPlace.lon)){
+    //check if the place is already billboarded
+    if (placeList.find((bb) => bb.lat === place.lat && bb.lon === place.lon)) {
       setFormValidation({
-        message0: "This Place already exists"
+        message0: "This Place already exists",
       });
       return false;
     }
 
-    if(!selectedPlace.givenName){
+    //check if the place name is given
+    if (!place.givenName) {
       setFormValidation({
         message1: "The given name should not be empty",
       });
       return false;
     }
-
-    if(!selectedPlace.givenId){
+    //check if the place id is given
+    if (!place.givenId) {
       setFormValidation({
         message2: "The identifier should not be empty",
       });
       return false;
     }
-    
-    //check if givenId is unique
-    if(billboardList.find(bb=>selectedPlace.givenId===bb.givenId)){
+
+    //check if given id is unique
+    if (placeList.find((bb) => place.givenId === bb.givenId)) {
       setFormValidation({
-        message2: "The identifier should unique",
+        message2: "The identifier should be unique",
       });
       return false;
     }
 
     return true;
-  }
+  };
 
   const handelClickAdd = () => {
-    
-    if(!validate()) return ;
-    
-    setBillboardList([...billboardList,{...selectedPlace!!,creationDate: Date.now()}]);
+    //check if the validation passed
+    if (!validate(selectedPlace, billboardList)) return;
+
+    //add the selected place to billboard list
+    setBillboardList([
+      ...billboardList,
+      { ...selectedPlace!!, creationDate: Date.now() },
+    ]);
+
+    //close the dialog box
     handleClose();
-    toast("Billboard has been added successfully");
+
+    //notify the user
+    toast.success("Billboard has been added successfully");
   };
-  
+
+  React.useEffect(()=>{
+    if(selectedPlace) setFormValidation({});
+  },[selectedPlace])
+
   return (
     <>
+      {/* the header of the app */}
       <Header openDialog={handleClickOpen} />
+
+      {/* main view */}
       <Grid container spacing={3} alignContent="center" justify="center">
         <Grid item xs={10}>
-          <Globe billboardList={billboardList}/>
+          {/* Globe component rendring the cesium Viewer component*/}
+          <Globe billboardList={billboardList} />
         </Grid>
       </Grid>
 
+      {/* dialog box */}
       <Dialog
         open={openDialog}
         TransitionComponent={Transition}
@@ -109,8 +146,10 @@ export const Wrapper: React.FC<WrapperProps> = () => {
         <DialogTitle id="alert-dialog-slide-title">
           Add billboard form
         </DialogTitle>
+
         <DialogContent style={{ overflow: "hidden", height: "40vh" }}>
           <Grid container spacing={4} alignContent="center" justify="center">
+            {/* form component to add billboard */}
             <Form
               selectedPlace={selectedPlace}
               setSelectedPlace={setSelectedPlace}
@@ -118,6 +157,7 @@ export const Wrapper: React.FC<WrapperProps> = () => {
             />
           </Grid>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handelClickAdd} color="primary">
             Add
@@ -126,6 +166,7 @@ export const Wrapper: React.FC<WrapperProps> = () => {
             Cancel
           </Button>
         </DialogActions>
+
       </Dialog>
     </>
   );

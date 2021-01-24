@@ -2,8 +2,8 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Select from "react-select";
-import { Typography } from "@material-ui/core";
-import { useData } from '../../hooks';
+import { usePlacesQuery } from '../../hooks';
+import { ErrorTypography } from '../../components/ErrorTypography';
 
 export interface FormProps {
   selectedPlace: NS_GEODATA.IPlace | undefined;
@@ -18,8 +18,10 @@ export const Form: React.FC<FormProps> = ({
   setSelectedPlace,
   formValidation,
 }) => {
+  //state to manage input live search data
   const [filter, setFilter] = React.useState<string>("");
-  const { loading, data: places } = useData(filter);
+  //consts to manage the props of the select component 
+  const { loading, places } = usePlacesQuery(filter);
 
   return (
     <>
@@ -55,12 +57,12 @@ export const Form: React.FC<FormProps> = ({
               : setSelectedPlace(selectedP);
           }}
         />
-        <Typography
-          variant="subtitle1"
-          style={{ display: formValidation.message0 ? "block" : "none" }}
-        >{formValidation.message0}</Typography>
+        <ErrorTypography
+         error={formValidation.message0} 
+        />
       </Grid>
 
+      {/* name place field */}
       <Grid item xs={11}>
         <TextField
           fullWidth
@@ -68,13 +70,12 @@ export const Form: React.FC<FormProps> = ({
           value={selectedPlace ? selectedPlace.givenName : ""}
           disabled
         />
-        <Typography
-          variant="subtitle1"
-          style={{ display: formValidation.message1 ? "block" : "none" }}
-        >
-          {formValidation.message1}
-        </Typography>
+        <ErrorTypography
+         error={formValidation.message1} 
+        />
       </Grid>
+
+      {/* id place field */}
       <Grid item xs={11}>
         <TextField
           fullWidth
@@ -88,12 +89,9 @@ export const Form: React.FC<FormProps> = ({
               });
           }}
         />
-        <Typography
-          variant="subtitle1"
-          style={{ display: formValidation.message2 ? "block" : "none" }}
-        >
-          {formValidation.message2}
-        </Typography>
+        <ErrorTypography
+         error={formValidation.message2} 
+        />
       </Grid>
     </>
   );
