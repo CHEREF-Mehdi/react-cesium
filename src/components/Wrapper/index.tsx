@@ -1,53 +1,81 @@
 import * as React from "react";
 import { Globe } from "../Globe";
 import Grid from "@material-ui/core/Grid";
-import { makeStyles, Theme } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
+import Slide from "@material-ui/core/Slide";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
+import { TransitionProps } from "@material-ui/core/transitions";
+import { Header } from "../Header";
+import { Form } from "../Form";
+import { IPlace } from "../../API/api";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-  },
-}));
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & { children?: React.ReactElement<any, any> },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 interface WrapperProps {}
 
 export const Wrapper: React.FC<WrapperProps> = () => {
-  const classes = useStyles();
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [selectedPlace, setSelectedPlace] = React.useState<IPlace | undefined>(
+    undefined
+  );
+
+  React.useEffect(()=>{
+    console.log(selectedPlace);
+    
+  },[selectedPlace])
+
+  const handleClickOpen = () => {
+    setOpenDialog(true);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+  };
+
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            News
-          </Typography>
-          <Button color="inherit">Login</Button>
-        </Toolbar>
-      </AppBar>
+      <Header openDialog={handleClickOpen} />
       <Grid container spacing={3} alignContent="center" justify="center">
-        <Grid item xs={11}>
+        <Grid item xs={10}>
           <Globe />
         </Grid>
       </Grid>
+
+      <Dialog
+        open={openDialog}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleClose}
+        maxWidth={"sm"}
+        fullWidth
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">
+          Add billboard form
+        </DialogTitle>
+        <DialogContent style={{ overflow: "hidden", height: "30vh" }}>
+          <Grid container spacing={4} alignContent="center" justify="center">
+            <Form selectedPlace={selectedPlace} setSelectedPlace={setSelectedPlace}/>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Add
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
